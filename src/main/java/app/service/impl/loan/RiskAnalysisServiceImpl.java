@@ -58,7 +58,7 @@ public class RiskAnalysisServiceImpl implements RiskAnalysisService {
         Integer issuedLoansWithinDay = loanEventRepository
                 .countByTypeAndClientIpAddressAndDateAfter(LoanEventType.ISSUED, clientIpAddress, oneDayBefore);
 
-        if(issuedLoansWithinDay > maxLoansFromSingleIpPerDay) {
+        if(issuedLoansWithinDay >= maxLoansFromSingleIpPerDay) {
             rejectLoanApplication(loanApplication, clientIpAddress, userName);
         }
     }

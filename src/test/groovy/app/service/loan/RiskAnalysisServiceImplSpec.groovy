@@ -1,6 +1,7 @@
 package app.service.loan
 
 import app.dto.applicaion.LoanApplication
+import app.exception.loan.LoanApplicationRejectedException
 import app.model.history.LoanEventType
 import app.repository.history.LoanEventRepository
 import app.service.api.history.LoanEventLoggerService
@@ -38,6 +39,21 @@ class RiskAnalysisServiceImplSpec extends Specification {
 
         then:
         noExceptionThrown()
+    }
+
+    def "too many requests for loan from single ip in same day should not pass validation "() {
+
+        given:
+        def loanApplication = new LoanApplication(amount: 6000.0d, termInDays: 14)
+
+        loanEventRepository
+                .countByTypeAndClientIpAddressAndDateAfter(LoanEventType.ISSUED, IP_ADDRESS, _ as LocalDateTime) >> MAX_LOANS_FROM_SINGLE_IP_PER_DAY
+
+        when:
+        riskAnalysisService.performRiskAnalysisFor(loanApplication, IP_ADDRESS, USERNAME)
+
+        then:
+        thrown(LoanApplicationRejectedException)
     }
 
 
