@@ -25,6 +25,8 @@ import static org.mockito.Mockito.when
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -120,6 +122,17 @@ class AuthorizationRuleSpec extends Specification {
         where:
         request << [get(LOANS_URI), get(LOANS_URI).with(user("client").roles(Role.USER.name()))]
     }
+
+    @WithMockUser(roles = "ADMIN")
+    def "option method should be forbidden"() {
+        when:
+        mvcResult = mvc.perform(options(LOANS_URI))
+        mvcResult.andDo(print())
+
+        then:
+        mvcResult.andExpect(status().isForbidden())
+    }
+
 
     def "is user with specified id rule should permit request only for user with specified id"() {
 

@@ -1,6 +1,5 @@
 package app.configuration.security.global;
 
-import app.configuration.security.authentication.CustomBasicAuthenticationEntryPoint;
 import app.configuration.security.authentication.UserDetailsServiceImpl;
 import app.configuration.security.authorization.Role;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +34,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private BasicAuthenticationEntryPoint basicAuthenticationEntryPoint;
 
-    @Override protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.inMemoryAuthentication().withUser("client@client.com").password("client").roles(Role.USER.name());
         auth.inMemoryAuthentication().withUser("admin@admin.com").password("admin").roles(Role.ADMIN.name());
 
@@ -43,15 +43,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Override
-    public void configure(WebSecurity web) throws Exception {
-        web.ignoring().antMatchers(HttpMethod.OPTIONS, MATCH_EVERY_PATTERN);
-    }
-
-    @Override protected void configure(HttpSecurity http) throws Exception {
+    protected void configure(HttpSecurity http) throws Exception {
         http
-                .csrf().disable()
-                .httpBasic().realmName(SecurityProps.BASIC_REALM_NAME.getDisplayName()).authenticationEntryPoint(basicAuthenticationEntryPoint)
-                .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                .authorizeRequests()
+                .antMatchers(HttpMethod.OPTIONS, "/**")
+                .denyAll()
+                .and()
+                .csrf()
+                .disable()
+                .httpBasic()
+                .realmName(SecurityProps.BASIC_REALM_NAME.getDisplayName())
+                .authenticationEntryPoint(basicAuthenticationEntryPoint)
+                .and()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
 
     @Bean

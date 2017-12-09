@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 /**
  * Created by GW95IB on 2017-05-26.
  */
-@NoArgsConstructor
 @AllArgsConstructor
 @Getter
 public class ExceptionInfo {
